@@ -4,50 +4,48 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MockMealRepositoryImpl implements MockMealRepository {
-    private ConcurrentMap<Integer, Meal> mealsMap = new ConcurrentHashMap<>();
-    private AtomicInteger count = new AtomicInteger();
+    private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
-        add(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
     }
 
     @Override
-    public void add(Meal meal) {
+    public void save(Meal meal) {
         if (meal.isNew()) {
-            meal.setId(count.getAndIncrement());
-        } else {
-            mealsMap.put(meal.getId(), meal);
+            meal.setId(counter.getAndIncrement());
         }
+        repository.put(meal.getId(), meal);
     }
 
     @Override
     public void remove(int id) {
-        mealsMap.remove(id);
+        repository.remove(id);
     }
 
     @Override
     public Meal get(int id) {
-        return mealsMap.get(id);
+        return repository.get(id);
     }
 
     @Override
     public void update(Meal meal) {
-        add(meal);
+        save(meal);
     }
 
-    public List<Meal> getAll() {
-        return new ArrayList<>(mealsMap.values());
+    public Collection<Meal> getAll() {
+        return repository.values();
     }
 }

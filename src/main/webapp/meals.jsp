@@ -17,13 +17,13 @@
 
 <table>
     <c:forEach var="meal" items="${meals}">
-        <jsp:useBean id="meal" scope="page" class="ru.javawebinar.topjava.model.MealWithExceed"/>
+        <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealWithExceed"/>
         <tr style="color: ${meal.exceed ? "red" : "green"}">
             <td><c:out value="${f:formatLocalDateTime(meal.dateTime)}"/></td>
             <td><c:out value="${meal.description}"/></td>
             <td><c:out value="${meal.calories}"/></td>
-            <td><a href="<c:url value="meals?action=edit&id=${meal.getId()}"/>">Edit</a></td>
-            <td><a href="<c:url value="meals?action=remove&id=${meal.getId()}"/>">Remove</a></td>
+            <td><a href="<c:url value="meals?action=edit&id=${meal.id}"/>">Edit</a></td>
+            <td><a href="<c:url value="meals?action=remove&id=${meal.id}"/>">Remove</a></td>
         </tr>
     </c:forEach>
 </table>

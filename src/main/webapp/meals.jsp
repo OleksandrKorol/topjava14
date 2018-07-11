@@ -14,9 +14,10 @@
     <title>Meals</title>
 </head>
 <body>
-<jsp:useBean id="meal" scope="request" class="ru.javawebinar.topjava.model.Meal"/>
+
 <table>
     <c:forEach var="meal" items="${meals}">
+        <jsp:useBean id="meal" scope="page" class="ru.javawebinar.topjava.model.MealWithExceed"/>
         <tr style="color: ${meal.exceed ? "red" : "green"}">
             <td><c:out value="${f:formatLocalDateTime(meal.dateTime)}"/></td>
             <td><c:out value="${meal.description}"/></td>

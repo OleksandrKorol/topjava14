@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.mock;
 
 import ru.javawebinar.topjava.model.Meal;
 
-public interface MealMock {
+public interface MockMealRepository {
     void add(Meal meal);
 
     void remove(int id);

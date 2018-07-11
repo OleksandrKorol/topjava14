@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MealMockImpl implements MealMock {
+public class MockMealRepositoryImpl implements MockMealRepository {
     private ConcurrentMap<Integer, Meal> mealsMap = new ConcurrentHashMap<>();
     private AtomicInteger count = new AtomicInteger();
 
@@ -26,13 +26,10 @@ public class MealMockImpl implements MealMock {
     @Override
     public void add(Meal meal) {
         if (meal.isNew()) {
-            int id = count.getAndIncrement();
-            meal.setId(id);
-            mealsMap.put(id, meal);
+            meal.setId(count.getAndIncrement());
         } else {
             mealsMap.put(meal.getId(), meal);
         }
-
     }
 
     @Override

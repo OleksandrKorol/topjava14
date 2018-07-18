@@ -30,25 +30,29 @@ public class AbstractMealController {
     }
 
     public Meal get(int id) {
-        log.info("get {}", id);
-        return service.get(id, authUserId());
+        int userId = authUserId();
+        log.info("get meal {} for User {}", id, userId);
+        return service.get(id, userId);
     }
 
     public void delete(int id) {
-        log.info("delete {}", id);
-        service.delete(id, authUserId());
+        int userId = authUserId();
+        log.info("delete meal {} for User {}", id, userId);
+        service.delete(id, userId);
     }
 
     public Meal create(Meal meal) {
-        log.info("create {}", meal);
+        int userId = authUserId();
+        log.info("create meal {} for User {}", meal, userId);
         checkNew(meal);
-        return service.save(meal, authUserId());
+        return service.save(meal, userId);
     }
 
     public void update(Meal meal, int id) {
-        log.info("update {} with id={}", meal, id);
+        int userId = authUserId();
+        log.info("update meal {} with id={} for User {}", meal, id, userId);
         assureIdConsistent(meal, id);
-        service.save(meal, authUserId());
+        service.save(meal, userId);
     }
 
     public Collection<MealWithExceed> getBetween(LocalDate sd, LocalTime st, LocalDate ed, LocalTime et) {

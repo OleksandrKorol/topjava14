@@ -31,7 +31,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        log.info("save {} with, userId {}", meal, userId);
+        log.info("save {} for User {}", meal, userId);
         Map<Integer, Meal> meals = repository.computeIfAbsent(userId, ConcurrentHashMap::new);
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
@@ -45,21 +45,21 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        log.info("delete {} with, userId {}", id, userId);
+        log.info("delete meal {} for userId {}", id, userId);
         Map<Integer, Meal> meals = repository.get(userId);
         return meals != null && meals.remove(id) != null;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        log.info("get {} with, userId {}", id, userId);
+        log.info("get meal {} for User {}", id, userId);
         Map<Integer, Meal> meals = repository.get(userId);
         return meals != null ? meals.get(id) : null;
     }
 
     @Override
     public Collection<Meal> getAll(int userId) {
-        log.info("getAll with userId {}", userId);
+        log.info("getAll meals for User {}", userId);
         Map<Integer, Meal> meals = repository.get(userId);
 
         return meals != null ? meals.values().stream()
@@ -68,7 +68,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     public Collection<Meal> getBetween(int userId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        log.info("filtered with userId", userId);
+        log.info("get between ({}-{}) for User {}", startDateTime, endDateTime, userId);
         return repository.get(userId).values().stream()
                 .filter(meal -> DateTimeUtil.isBetween(meal.getDateTime(),
                         startDateTime, endDateTime

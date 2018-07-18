@@ -39,6 +39,7 @@ public class MealServlet extends HttpServlet {
     @Override
     public void destroy() {
         appCtx.close();
+        super.destroy();
     }
 
     @Override

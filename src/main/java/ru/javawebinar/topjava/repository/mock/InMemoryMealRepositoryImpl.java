@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.repository.mock;
 
+import javafx.print.Collation;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
@@ -10,6 +11,7 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,8 +65,8 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         Map<Integer, Meal> meals = repository.get(userId);
 
         return meals != null ? meals.values().stream()
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList()) : null;
+                .sorted((m1, m2) -> m2.getDateTime().compareTo(m1.getDateTime()))
+                .collect(Collectors.toList()) : Collections.emptyList();
     }
 
     public Collection<Meal> getBetween(int userId, LocalDateTime startDateTime, LocalDateTime endDateTime) {

@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
-import static org.junit.Assert.*;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
@@ -40,24 +39,24 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal meal = service.get(MEAL_ID, USER_ID);
-        assertMatch(MEAL, meal);
+        Meal meal = service.get(MEAL1_ID, USER_ID);
+        assertMatch(MEAL1, meal);
     }
 
     @Test(expected = NotFoundException.class)
     public void NotFoundGet() {
-        Meal meal = service.get(MEAL_ID, USER_ID + 3);
+        Meal meal = service.get(MEAL1_ID, USER_ID + 3);
     }
 
     @Test
     public void delete() {
-        service.delete(MEAL_ID, USER_ID);
-        assertMatch(service.getAll(USER_ID), MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
+        service.delete(MEAL1_ID, USER_ID);
+        assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
     @Test(expected = NotFoundException.class)
     public void NotFoundDelete() {
-        service.delete(MEAL_ID, USER_ID + 3);
+        service.delete(MEAL1_ID, USER_ID + 3);
     }
 
     @Test
@@ -67,16 +66,16 @@ public class MealServiceTest {
 
     @Test
     public void update() {
-        Meal updated = new Meal(MEAL);
+        Meal updated = new Meal(MEAL1);
         updated.setDescription("new24");
         updated.setCalories(44);
         service.update(updated, USER_ID);
-        assertMatch(service.get(MEAL_ID, USER_ID), updated);
+        assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
     @Test(expected = NotFoundException.class)
     public void notFoundUpdate() {
-        Meal updated = new Meal(MEAL);
+        Meal updated = new Meal(MEAL1);
         updated.setDescription("new24");
         updated.setCalories(44);
         service.update(updated, USER_ID + 3);
@@ -87,7 +86,7 @@ public class MealServiceTest {
         Meal newMeal = new Meal(null, LocalDateTime.of(2018, Month.MAY, 31, 20, 0), "NEW", 510);
         Meal created = service.create(newMeal, USER_ID);
         newMeal.setId(created.getId());
-        assertMatch(service.getAll(USER_ID), newMeal, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1, MEAL);
+        assertMatch(service.getAll(USER_ID), newMeal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
     }
 
     @Test(expected = DuplicateKeyException.class)
@@ -95,7 +94,7 @@ public class MealServiceTest {
         Meal newMeal = new Meal(null, LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "NEW", 510);
         Meal created = service.create(newMeal, USER_ID);
         newMeal.setId(created.getId());
-        assertMatch(service.getAll(USER_ID), newMeal, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1, MEAL);
+        assertMatch(service.getAll(USER_ID), newMeal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
     }
 
     @Test
@@ -105,6 +104,6 @@ public class MealServiceTest {
                 LocalDateTime.of(2015, 05, 30, 14, 0),
                 USER_ID
         );
-        assertMatch(meals, MEAL1, MEAL);
+        assertMatch(meals, MEAL2, MEAL1);
     }
 }

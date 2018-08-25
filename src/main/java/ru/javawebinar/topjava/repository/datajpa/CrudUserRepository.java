@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 
+import javax.persistence.OrderBy;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +25,13 @@ public interface CrudUserRepository extends JpaRepository<User, Integer> {
     User save(User user);
 
     @Override
-    Optional<User> findById(Integer id);
+    Optional<User> findById(@Param("id") Integer id);
 
     @Override
     List<User> findAll(Sort sort);
 
     User getByEmail(String email);
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.meals WHERE u.id=:id")
+    User getWithMeals(@Param("id") Integer id);
 }

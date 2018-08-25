@@ -19,4 +19,8 @@ public interface UserService {
     void update(User user);
 
     List<User> getAll();
+
+    default User getWithMeals(Integer id) throws NotFoundException {
+        throw new UnsupportedOperationException();
+    }
 }

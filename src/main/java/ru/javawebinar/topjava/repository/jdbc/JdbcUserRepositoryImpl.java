@@ -15,8 +15,9 @@ import ru.javawebinar.topjava.repository.UserRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional(readOnly = true)
@@ -48,27 +49,32 @@ public class JdbcUserRepositoryImpl implements UserRepository {
         if (user.isNew()) {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
-            jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)", new BatchPreparedStatementSetter() {
-                List<Role> roles = new ArrayList<>(user.getRoles());
-
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    Role r = roles.get(i);
-                    ps.setLong(1, user.getId());
-                    ps.setString(2, r.getRole());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return roles.size();
-                }
-            });
+            insertRoles(user);
         } else if (namedParameterJdbcTemplate.update(
                 "UPDATE users SET name=:name, email=:email, password=:password, " +
                         "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id", parameterSource) == 0) {
             return null;
         }
         return user;
+    }
+
+    private void insertRoles(User u) {
+        Set<Role> roles = u.getRoles();
+        Iterator<Role> iterator = roles.iterator();
+
+        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, u.getId());
+                        ps.setString(2, iterator.next().name());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return roles.size();
+                    }
+                });
     }
 
     @Override
@@ -81,18 +87,12 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     public User get(int id) {
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
         User user = DataAccessUtils.singleResult(users);
-        return user != null ? getRoles(user) : null;
+        return user != null ? setRoles(user) : null;
     }
 
-    private User getRoles(User user) {
-        List<Role> roles = jdbcTemplate.query("SELECT role FROM user_roles WHERE user_id=?", (ResultSetExtractor<List<Role>>) rs -> {
-            List<Role> list = new ArrayList<>();
-
-            while (rs.next()) {
-                list.add(Role.valueOf(rs.getString("role")));
-            }
-            return list;
-        }, user.getId());
+    private User setRoles(User user) {
+        List<Role> roles = jdbcTemplate.query("SELECT role FROM user_roles WHERE user_id=?",
+                (rs, rowNum) -> Role.valueOf(rs.getString("role")), user.getId());
         user.setRoles(roles);
         return user;
     }
@@ -102,11 +102,36 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 //        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
         User user = DataAccessUtils.singleResult(users);
-        return user != null ? getRoles(user) : null;
+        return user != null ? setRoles(user) : null;
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+
+        class UserRole {
+            private Role role;
+            private int userId;
+
+            private UserRole(Role role, int userId) {
+                this.role = role;
+                this.userId = userId;
+            }
+
+            public int getUserId() {
+                return userId;
+            }
+
+            public Role getRole() {
+                return role;
+            }
+        }
+
+        Map<Integer,List<UserRole>> roles = jdbcTemplate.query("SELECT role, user_id FROM user_roles",
+                (rs, rowNum) -> new UserRole(Role.valueOf(rs.getString("role")), rs.getInt("user_id")))
+                .stream().collect(Collectors.groupingBy(UserRole::getUserId));
+
+        users.forEach(u -> u.setRoles(roles.get(u.getId()).stream().map(UserRole::getRole).collect(Collectors.toList())));
+        return users;
     }
 }

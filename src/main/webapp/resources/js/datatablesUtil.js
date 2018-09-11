@@ -1,7 +1,7 @@
 function makeEditable() {
-    $(".delete").click(function () {
-        deleteRow($(this).attr("id"));
-    });
+    // $(".delete").click(function () {
+    //     deleteRow($(this).attr("id"));
+    // });
 
     $(document).ajaxError(function (event, jqXHR, options, jsExc) {
         failNoty(jqXHR);
@@ -28,9 +28,39 @@ function deleteRow(id) {
 }
 
 function updateTable() {
+    var form = $("#filter");
+
+    $.ajax({
+        type: "GET",
+        url: ajaxUrl + "filter",
+        data: form.serialize(),
+        success: function (data) {
+            datatableApi.clear().rows.add(data).draw();
+        }
+    });
+}
+
+function clearFilter() {
     $.get(ajaxUrl, function (data) {
         datatableApi.clear().rows.add(data).draw();
     });
+}
+
+function enable(data, id) {
+    var par = data.is(':checked');
+
+    $.ajax({
+        type: "GET",
+        url: ajaxUrl + "enable",
+        data: {
+            id: id,
+            disable: par
+        },
+        success: function () {
+            successNoty(par ? "Disable" : "Enable");
+            updateTable();
+        }
+    })
 }
 
 function save() {

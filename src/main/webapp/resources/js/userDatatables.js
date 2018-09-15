@@ -2,6 +2,13 @@ var ajaxUrl = "ajax/admin/users/";
 var datatableApi;
 
 // $(document).ready(function () {
+
+function updateTable() {
+    $.get(ajaxUrl, function (data) {
+        updateTableByData(data)
+    });
+}
+
 $(function () {
     datatableApi = $("#datatable").DataTable({
         "paging": false,

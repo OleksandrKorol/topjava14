@@ -27,37 +27,25 @@ function deleteRow(id) {
     });
 }
 
-function updateTable() {
-    var form = $("#filter");
-
-    $.ajax({
-        type: "GET",
-        url: ajaxUrl + "filter",
-        data: form.serialize(),
-        success: function (data) {
-            datatableApi.clear().rows.add(data).draw();
-        }
-    });
+function updateTableByData(data) {
+    datatableApi.clear().rows.add(data).draw();
 }
 
 function clearFilter() {
     $.get(ajaxUrl, function (data) {
-        datatableApi.clear().rows.add(data).draw();
+        updateTableByData(data)
     });
 }
 
 function enable(data, id) {
-    var par = data.is(':checked');
+    var enabled = data.is(':checked');
 
     $.ajax({
-        type: "GET",
-        url: ajaxUrl + "enable",
-        data: {
-            id: id,
-            disable: par
-        },
+        type: "POST",
+        url: ajaxUrl + id,
+        data: "enable=" + enabled,
         success: function () {
-            successNoty(par ? "Disable" : "Enable");
+            successNoty(enabled ? "Enabled" : "Disabled");
             updateTable();
         }
     })

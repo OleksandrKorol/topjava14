@@ -7,7 +7,19 @@ function makeEditable() {
     });
 
     // solve problem with cache in IE: https://stackoverflow.com/a/4303862/548473
-    $.ajaxSetup({cache: false});
+    $.ajaxSetup({
+        cache: false,
+        converters: {
+            "text json": function (stringData) {
+                let json = JSON.parse(stringData);
+                $(json).each(function () {
+                    this.dateTime = this.dateTime.replace('T', ' ').substring(0, 16);
+                });
+                // Какие то действия
+                return json;
+            }
+        }
+    });
 }
 
 function add() {
@@ -38,6 +50,10 @@ function deleteRow(id) {
 
 function updateTableByData(data) {
     datatableApi.clear().rows.add(data).draw();
+}
+
+function formatDate(value) {
+    return value.replace('T', ' ').substring(0, 16);
 }
 
 function save() {
@@ -73,8 +89,9 @@ function successNoty(key) {
 
 function failNoty(jqXHR) {
     closeNoty();
+    let responseJSON = JSON.parse(jqXHR.responseText);
     failedNote = new Noty({
-        text: "<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;" + i18n["common.errorStatus"] + ": " + jqXHR.status + (jqXHR.responseJSON ? "<br>" + jqXHR.responseJSON : ""),
+        text: "<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;" + i18n["common.errorStatus"] + ": " + jqXHR.status + (responseJSON ? "<br>" + responseJSON : ""),
         type: "error",
         layout: "bottomRight"
     }).show();
